@@ -1,0 +1,14 @@
+# Exclude foldere generate automat
+.vs/
+
+# Exclude fisiere de configurare Windows
+desktop.ini
+Thumbs.db
+
+# Exclude fisiere temporare
+*.log
+*.tmp
+
+# Exclude foldere de build
+bin/
+obj/
