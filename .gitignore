@@ -1,14 +1,24 @@
-# Exclude foldere generate automat
-.vs/
-
-# Exclude fisiere de configurare Windows
-desktop.ini
+# Exclude fisiere de sistem
+.bash_history
+.dotnet/
+.vscode/
+AppData/
+Application Data/
+Cookies/
+Documents/
+Downloads/
+Music/
+Pictures/
+OneDrive/
+NTUSER.DAT*
 Thumbs.db
+desktop.ini
 
-# Exclude fisiere temporare
+# Exclude directoarele și fișierele generate automat
+.vs/
 *.log
 *.tmp
 
-# Exclude foldere de build
+# Exclude fișiere inutile din Visual Studio
 bin/
 obj/
