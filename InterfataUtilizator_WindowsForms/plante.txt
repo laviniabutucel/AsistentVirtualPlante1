@@ -1,5 +1,14 @@
-﻿Cactus,5,8,Nisipos,Decorativa
-Lavanda,4,6,Cernoziom,Aromatica
-Aloe Vera,3,10,Argilos,Medicinala
-oana,5,5,Cernoziom,Niciuna
-cais,3,9,Cernoziom,Niciuna
+﻿Bumbisor,2,6,Argilos,Decorativă
+Bumbisor,4,3,Argilos,Aromatică
+fggb,4,6,Argilos,Aromatică
+gtrgbdv,2,6,Argilos,Aromatică
+edfrdgbv,2,3,Argilos,Aromatică
+trgfvc,2,6,Argilos,Aromatică
+Trandafir,2,6,Argilos,Aromatică
+Cactus,2,3,Argilos,Decorativă
+Cactus,4,3,Argilos,Decorativă
+Bujor,7,9,Cernoziom,Aromatică, Decorativă
+Trandafir,4,3,Nisipos,Aromatică, Decorativă
+Cocos,2,9,Nisipos,Niciuna
+Bujor,4,3,Cernoziom,Medicinală, Decorativă
+Bujor,2,3,Argilos,Aromatică

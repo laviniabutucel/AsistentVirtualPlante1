@@ -1,232 +1,215 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
-using LibrarieModele; // Clasa Planta
-using NivelStocareDate; // AdministrarePlante_FisierText
+using LibrarieModele;          // Clasa Planta și enum-urile TipSol, CaracteristiciPlanta
+using NivelStocareDate;        // AdministrarePlante_FisierText
 
 namespace InterfataUtilizator_WindowsForms
 {
     public partial class Form1 : Form
     {
-        private TextBox txtNumePlanta;
-        private TextBox txtNevoieApa;
-        private TextBox txtNevoieLumina; // TextBox pentru "Nevoie de Lumină"
-        private ComboBox cmbTipSol;
-        private Label lblEroare;
         private AdministrarePlante_FisierText adminPlante;
 
         public Form1()
         {
             InitializeComponent();
 
-            // Configurare generală a ferestrei
+
+            // Setările generale ale ferestrei (acestea pot fi configurate și prin Designer)
             this.Text = "Gestionare Plante";
-            this.BackColor = Color.LightGreen;
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.MaximizeBox = true;
+            this.BackColor = Color.DarkSeaGreen;
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
             this.Size = new Size(800, 600);
 
-            // Inițializează clasa pentru gestionarea fișierului
+            // Inițializarea clasei care gestionează fișierul "plante.txt"
             adminPlante = new AdministrarePlante_FisierText("plante.txt");
-
-            AdaugaControale();
         }
 
-        private void AdaugaControale()
+        private void btnAdauga_Click(object sender, EventArgs e)
         {
-            // Label și TextBox pentru Nume Plantă
-            Label lblNumePlanta = new Label
-            {
-                Text = "Nume Plantă:",
-                Font = new Font("Arial", 12),
-                AutoSize = true,
-                Top = 20,
-                Left = 20
-            };
-            this.Controls.Add(lblNumePlanta);
+            lblEroare.Text = string.Empty;
 
-            txtNumePlanta = new TextBox
-            {
-                Font = new Font("Arial", 12),
-                Width = 200,
-                Top = lblNumePlanta.Top,
-                Left = lblNumePlanta.Left + 150
-            };
-            this.Controls.Add(txtNumePlanta);
+            // Declararea variabilelor pentru TipSol și Caracteristici
+            string tipSol = "";
+            string caracteristiciText = "";
+            string numePlanta = string.IsNullOrWhiteSpace(txtNumePlanta.Text) ? "Necunoscut" : txtNumePlanta.Text.Trim();
+            string nevoieApa = cmbNevoieApa.SelectedItem?.ToString() ?? "0"; // Evită null
+            string nevoieLumina = cmbNevoieLumina.SelectedItem?.ToString() ?? "0"; // Evită null
 
-            // Label și TextBox pentru Nevoie de Apă
-            Label lblNevoieApa = new Label
-            {
-                Text = "Nevoie de Apă (zile):",
-                Font = new Font("Arial", 12),
-                AutoSize = true,
-                Top = lblNumePlanta.Top + 40,
-                Left = 20
-            };
-            this.Controls.Add(lblNevoieApa);
-
-            txtNevoieApa = new TextBox
-            {
-                Font = new Font("Arial", 12),
-                Width = 200,
-                Top = lblNevoieApa.Top,
-                Left = lblNevoieApa.Left + 200
-            };
-            this.Controls.Add(txtNevoieApa);
-
-            // Label și TextBox pentru Nevoie de Lumină
-            Label lblNevoieLumina = new Label
-            {
-                Text = "Nevoie de Lumină (ore/zi):",
-                Font = new Font("Arial", 12),
-                AutoSize = true,
-                Top = lblNevoieApa.Top + 40,
-                Left = 20
-            };
-            this.Controls.Add(lblNevoieLumina);
-
-            txtNevoieLumina = new TextBox
-            {
-                Font = new Font("Arial", 12),
-                Width = 200,
-                Top = lblNevoieLumina.Top,
-                Left = lblNevoieLumina.Left + 250
-            };
-            this.Controls.Add(txtNevoieLumina);
-
-            // Label și ComboBox pentru Tip Sol
-            Label lblTipSol = new Label
-            {
-                Text = "Tip Sol:",
-                Font = new Font("Arial", 12),
-                AutoSize = true,
-                Top = lblNevoieLumina.Top + 40,
-                Left = 20
-            };
-            this.Controls.Add(lblTipSol);
-
-            cmbTipSol = new ComboBox
-            {
-                Font = new Font("Arial", 12),
-                Width = 200,
-                Top = lblTipSol.Top,
-                Left = lblTipSol.Left + 80,
-                DropDownStyle = ComboBoxStyle.DropDownList
-            };
-            cmbTipSol.Items.AddRange(new string[] { "Nisipos", "Argilos", "Cernoziom" });
-            this.Controls.Add(cmbTipSol);
-
-            // Etichetă pentru afișarea erorilor
-            lblEroare = new Label
-            {
-                Text = "",
-                Font = new Font("Arial", 10),
-                ForeColor = Color.Red,
-                AutoSize = true,
-                Top = lblTipSol.Top + 40,
-                Left = 20
-            };
-            this.Controls.Add(lblEroare);
-
-            // Buton Adaugă
-            Button btnAdauga = new Button
-            {
-                Text = "Adaugă",
-                Font = new Font("Arial", 12),
-                AutoSize = true,
-                Top = lblEroare.Top + 40,
-                Left = 20
-            };
-            btnAdauga.Click += BtnAdauga_Click;
-            this.Controls.Add(btnAdauga);
-
-            // Buton Refresh
-            Button btnRefresh = new Button
-            {
-                Text = "Refresh",
-                Font = new Font("Arial", 12),
-                AutoSize = true,
-                Top = btnAdauga.Top,
-                Left = btnAdauga.Left + 150
-            };
-            btnRefresh.Click += BtnRefresh_Click;
-            this.Controls.Add(btnRefresh);
-        }
-
-        private void BtnAdauga_Click(object sender, EventArgs e)
-        {
-            lblEroare.Text = ""; // Resetează mesajul de eroare
 
             if (ValidareDate(out string mesajEroare))
             {
-                // Creare și salvare plantă
+                // Verificăm ce Tip Sol este selectat (RadioButton)
+                if (rbNisipos.Checked) tipSol = "Nisipos";
+                if (rbArgilos.Checked) tipSol = "Argilos";
+                if (rbCernoziom.Checked) tipSol = "Cernoziom";
+
+                // Verificăm ce caracteristici sunt bifate (CheckBox-uri)
+                List<string> caracteristici = new List<string>();
+                if (cbMedicinala.Checked) caracteristici.Add("Medicinală");
+                if (cbAromatica.Checked) caracteristici.Add("Aromatică");
+                if (cbDecorativa.Checked) caracteristici.Add("Decorativă");
+                if (cbCarnivora.Checked) caracteristici.Add("Carnivoră");
+                if (cbNiciuna.Checked) caracteristici.Add("Niciuna");
+                caracteristiciText = string.Join(", ", caracteristici);
+
+
+                //Console.WriteLine($"Salvare: {numePlanta}, {nevoieApa}, {nevoieLumina}, {tipSol}, {caracteristiciText}");
+                using (StreamWriter writer = new StreamWriter("plante.txt", true)) // 'true' -> adăugare la fișier
+                {
+                    writer.WriteLine($"{numePlanta},{nevoieApa},{nevoieLumina},{tipSol},{caracteristiciText}");
+                }
+
+
+
+                // Creăm instanța plantei și salvăm
                 Planta planta = new Planta(
                     txtNumePlanta.Text,
-                    int.Parse(txtNevoieApa.Text),
-                    int.Parse(txtNevoieLumina.Text),
-                    (TipSol)Enum.Parse(typeof(TipSol), cmbTipSol.SelectedItem.ToString()),
-                    CaracteristiciPlanta.Niciuna // Exemplu generic
-                );
+                    int.Parse(cmbNevoieApa.SelectedItem.ToString()),
+                    int.Parse(cmbNevoieLumina.SelectedItem.ToString()),
+                    (TipSol)Enum.Parse(typeof(TipSol), tipSol), caracteristiciText);
+
                 adminPlante.AddPlanta(planta);
-
                 MessageBox.Show("Planta a fost adăugată cu succes!", "Succes", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                // Resetare câmpuri
-                txtNumePlanta.Text = txtNevoieApa.Text = txtNevoieLumina.Text = "";
-                cmbTipSol.SelectedIndex = -1;
+                ResetareCampuri();
             }
             else
             {
-                lblEroare.Text = mesajEroare; // Afișează mesajul de eroare
+                lblEroare.Text = mesajEroare;
             }
+
         }
 
-        private void BtnRefresh_Click(object sender, EventArgs e)
+
+
+
+        private void btnRefresh_Click(object sender, EventArgs e)
         {
-            List<Planta> plante = adminPlante.GetPlante();
-
-            if (plante.Count > 0)
+            if (!File.Exists("plante.txt"))
             {
-                Planta ultimaPlanta = plante[^1]; // Ultima plantă din listă
-                MessageBox.Show(ultimaPlanta.VerificaStarePlanta(), "Ultima Plantă Adăugată", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Fișierul plante.txt nu există!", "Eroare", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            string[] linii = File.ReadAllLines("plante.txt");
+
+            if (linii.Length == 0)
+            {
+                MessageBox.Show("Nu au fost înregistrate plante.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            string[] ultimaPlanta = linii.Last().Split(',');
+            if (ultimaPlanta.Length == 5)
+            {
+                MessageBox.Show($"Ultima plantă adăugată:\n\n" +
+                    $"Nume: {ultimaPlanta[0]}\n" +
+                    $"Nevoie de Apă: {ultimaPlanta[1]} zile\n" +
+                    $"Nevoie de Lumină: {ultimaPlanta[2]} ore/zi\n" +
+                    $"Tip Sol: {ultimaPlanta[3]}\n" +
+                    $"Caracteristici: {ultimaPlanta[4]}",
+                    "Informații Plantă",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
             }
             else
             {
-                MessageBox.Show("Nu există plante înregistrate.", "Informație", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Format incorect al fișierului! Verifică plante.txt.", "Eroare", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+
+        private void btnCauta_Click(object sender, EventArgs e)
+        {
+            string numeCautat = txtCautaPlanta.Text.Trim();
+
+            if (string.IsNullOrEmpty(numeCautat))
+            {
+                MessageBox.Show("Introduceți numele plantei pentru căutare.", "Avertisment", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (!File.Exists("plante.txt"))
+            {
+                MessageBox.Show("Fișierul plante.txt nu există!", "Eroare", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            string[] linii = File.ReadAllLines("plante.txt");
+            foreach (string linie in linii)
+            {
+                string[] campuri = linie.Split(',');
+
+                if (campuri.Length >= 5 && campuri[0].Trim().Equals(numeCautat, StringComparison.OrdinalIgnoreCase))
+                {
+                    MessageBox.Show($"Planta găsită:\n\n" +
+                        $"Nume: {campuri[0]}\n" +
+                        $"Nevoie de Apă: {campuri[1]} zile\n" +
+                        $"Nevoie de Lumină: {campuri[2]} ore/zi\n" +
+                        $"Tip Sol: {campuri[3]}\n" +
+                        $"Caracteristici: {campuri[4]}",
+                        "Rezultat Căutare", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+            }
+
+            MessageBox.Show("Planta nu a fost găsită.", "Rezultat Căutare", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+
 
         private bool ValidareDate(out string mesajEroare)
         {
-            mesajEroare = "";
+            mesajEroare = string.Empty;
 
             if (string.IsNullOrWhiteSpace(txtNumePlanta.Text) || txtNumePlanta.Text.Length > 15)
             {
                 mesajEroare = "Numele plantei este invalid (maxim 15 caractere).";
                 return false;
             }
-
-            if (!int.TryParse(txtNevoieApa.Text, out int nevoieApa) || nevoieApa <= 0)
+            if (!int.TryParse(cmbNevoieApa.Text, out int nevoieApa) || nevoieApa <= 0)
             {
                 mesajEroare = "Nevoia de apă trebuie să fie un număr pozitiv.";
                 return false;
             }
-
-            if (!int.TryParse(txtNevoieLumina.Text, out int nevoieLumina) || nevoieLumina <= 0)
+            if (!int.TryParse(cmbNevoieLumina.Text, out int nevoieLumina) || nevoieLumina <= 0)
             {
                 mesajEroare = "Nevoia de lumină trebuie să fie un număr pozitiv.";
                 return false;
             }
-
-            if (cmbTipSol.SelectedIndex == -1)
+            if (!rbNisipos.Checked && !rbArgilos.Checked && !rbCernoziom.Checked)
             {
-                mesajEroare = "Selectați un tip de sol.";
+                mesajEroare = "Selectați un tip de sol!";
                 return false;
             }
-
             return true;
         }
+
+
+        // Resetare câmpuri după adăugarea unei plante
+        private void ResetareCampuri()
+        {
+            txtNumePlanta.Clear();
+            cmbNevoieApa.SelectedIndex = -1;
+            cmbNevoieLumina.SelectedIndex = -1;
+
+            // Resetare RadioButton-uri pentru Tip Sol
+            rbNisipos.Checked = false;
+            rbArgilos.Checked = false;
+            rbCernoziom.Checked = false;
+
+            // Resetare CheckBox-uri pentru Caracteristici
+            cbMedicinala.Checked = false;
+            cbAromatica.Checked = false;
+            cbDecorativa.Checked = false;
+            cbCarnivora.Checked = false;
+            cbNiciuna.Checked = false;
+
+            txtCautaPlanta.Clear();
+        }
+
     }
 }

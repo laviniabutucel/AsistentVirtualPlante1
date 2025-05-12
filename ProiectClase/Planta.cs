@@ -5,13 +5,12 @@ namespace LibrarieModele
     public class Planta
     {
         public string Nume { get; set; }
-        public int NevoieApa { get; set; } // Zile necesare pentru udare
-        public int NevoieLumina { get; set; } // Ore necesare de lumină pe zi
-        public TipSol TipSol { get; set; } // Tip de sol
-        public CaracteristiciPlanta Caracteristici { get; set; } // Caracteristicile plantei
+        public int NevoieApa { get; set; }
+        public int NevoieLumina { get; set; }
+        public TipSol TipSol { get; set; }
+        public string Caracteristici { get; set; } // Caracteristici rămâne string
 
-        // Constructor cu parametri
-        public Planta(string nume, int nevoieApa, int nevoieLumina, TipSol tipSol, CaracteristiciPlanta caracteristici)
+        public Planta(string nume, int nevoieApa, int nevoieLumina, TipSol tipSol, string caracteristici)
         {
             Nume = nume;
             NevoieApa = nevoieApa;
@@ -19,6 +18,10 @@ namespace LibrarieModele
             TipSol = tipSol;
             Caracteristici = caracteristici;
         }
+
+
+
+
 
         // Metoda care verifică starea plantei
         public string VerificaStarePlanta()

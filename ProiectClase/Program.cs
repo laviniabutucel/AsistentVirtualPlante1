@@ -65,12 +65,13 @@ namespace AsistentVirtualPlante
                         }
                     }
 
+
                     if (validInput)
                         break;
                 }
 
                 // Crează planta și adaug-o în memorie și fișier
-                Planta planta = new Planta(nume, nevoieApa, nevoieLumina, tipSol, caracteristici);
+                Planta planta = new Planta(nume, nevoieApa, nevoieLumina, tipSol, caracteristici.ToString());
                 adminMemorie.AddPlanta(planta);
                 adminFisier.AddPlanta(planta);
             }

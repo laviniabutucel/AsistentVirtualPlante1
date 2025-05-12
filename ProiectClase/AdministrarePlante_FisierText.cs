@@ -35,38 +35,26 @@ namespace NivelStocareDate
         {
             List<Planta> plante = new List<Planta>();
 
-            if (File.Exists(numeFisier))
+            if (!File.Exists("plante.txt"))
             {
-                using (StreamReader streamReader = new StreamReader(numeFisier, System.Text.Encoding.UTF8))
+                return plante; // Returnează listă goală dacă fișierul nu există
+            }
+
+            string[] linii = File.ReadAllLines("plante.txt");
+            foreach (string linie in linii)
+            {
+                string[] campuri = linie.Split(',');
+
+                if (campuri.Length == 5)
                 {
-                    string linieFisier;
-
-                    while ((linieFisier = streamReader.ReadLine()) != null)
-                    {
-                        string[] datePlanta = linieFisier.Split(',');
-                        if (datePlanta.Length == 5)
-                        {
-                            try
-                            {
-                                string nume = datePlanta[0].Trim();
-                                int nevoieApa = int.Parse(datePlanta[1].Trim());
-                                int nevoieLumina = int.Parse(datePlanta[2].Trim());
-                                TipSol tipSol = (TipSol)Enum.Parse(typeof(TipSol), datePlanta[3].Trim());
-                                CaracteristiciPlanta caracteristici = (CaracteristiciPlanta)Enum.Parse(typeof(CaracteristiciPlanta), datePlanta[4].Trim());
-
-                                plante.Add(new Planta(nume, nevoieApa, nevoieLumina, tipSol, caracteristici));
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine($"Eroare la citirea plantei: {ex.Message}");
-                            }
-                        }
-                    }
+                    Planta planta = new Planta(campuri[0], int.Parse(campuri[1]), int.Parse(campuri[2]), (TipSol)Enum.Parse(typeof(TipSol), campuri[3]), campuri[4]);
+                    plante.Add(planta);
                 }
             }
 
             return plante;
         }
+
 
         public void ActualizeazaFisier(List<Planta> plante)
         {

@@ -6,10 +6,10 @@ namespace LibrarieModele
     public enum CaracteristiciPlanta
     {
         Niciuna = 0,
-        Fructifera = 1,
-        Decorativa = 2,
-        Medicinala = 4,
-        Aromatica = 8
+        Carnivoră = 1,
+        Decorativă = 2,
+        Medicinală = 4,
+        Aromatică = 8
     }
 
     public enum TipSol

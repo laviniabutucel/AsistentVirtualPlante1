@@ -1,3 +1,0 @@
-﻿Cactus;5;8;Nisipos;Decorativa
-Lavanda;4;6;Cernoziom;Aromatica
-Aloe Vera;3;10;Argilos;Medicinala
